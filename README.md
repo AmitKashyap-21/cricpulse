@@ -4,7 +4,7 @@ Minimal real-time cricket scores MVP.
 
 - Backend: NestJS + Redis + Socket.IO (WS path `/ws`)
 - Frontend: Next.js 15 (App Router) + Tailwind + socket.io-client
-- Data: CricAPI / CricketData (free tier) via backend aggregator
+- Data: RapidAPI Cricbuzz (`cricbuzz-cricket.p.rapidapi.com`) via backend aggregator
 
 ---
 
@@ -12,7 +12,7 @@ Minimal real-time cricket scores MVP.
 
 - Node.js 22+
 - Docker (for Redis)
-- A CricAPI/CricketData API key
+- A [RapidAPI](https://rapidapi.com/cricketapilive/api/cricbuzz-cricket) key for the Cricbuzz Cricket API
 
 ---
 
@@ -29,7 +29,7 @@ docker compose up -d
 ```bash
 cd backend
 cp .env.example .env
-# edit .env and set CRICAPI_API_KEY
+# edit .env and set RAPIDAPI_KEY to your RapidAPI key
 npm install
 npm run start:dev
 ```
@@ -59,8 +59,24 @@ Frontend runs at: `http://localhost:3001`
 
 ---
 
+## Environment variables (backend)
+
+| Variable | Description | Default |
+|---|---|---|
+| `RAPIDAPI_KEY` | Your RapidAPI key for Cricbuzz | *(required)* |
+| `RAPIDAPI_HOST` | RapidAPI host header | `cricbuzz-cricket.p.rapidapi.com` |
+| `RAPIDAPI_BASE_URL` | Base URL for Cricbuzz API | `https://cricbuzz-cricket.p.rapidapi.com` |
+| `RAPIDAPI_MATCHES_PATH` | Endpoint path for live matches list | `/matches/v1/live` |
+| `REDIS_HOST` | Redis hostname | `localhost` |
+| `REDIS_PORT` | Redis port | `6379` |
+| `PORT` | Backend HTTP port | `3000` |
+| `FRONTEND_ORIGIN` | CORS allowed origin | `http://localhost:3001` |
+
+---
+
 ## Notes / MVP behavior
 
 - Backend polls live matches every ~8 seconds (capped to top 20 match IDs).
 - All clients subscribe via WebSocket; backend broadcasts `match_update`.
-- If CricAPI fails or rate-limiter blocks, backend serves cached snapshot marked `stale: true`.
+- If RapidAPI Cricbuzz fails or rate-limiter blocks, backend serves cached snapshot marked `stale: true`.
+- Rate limiting uses Redis key `rate_limit:rapidapi_cricbuzz`.
