@@ -2,7 +2,7 @@ import { Injectable, Logger } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
 import { RedisService } from '../redis/redis.service';
 
-const RATE_LIMIT_KEY = 'rate_limit:cricapi';
+const RATE_LIMIT_KEY = 'rate_limit:rapidapi_cricbuzz';
 
 @Injectable()
 export class RateLimitService {

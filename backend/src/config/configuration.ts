@@ -1,9 +1,11 @@
 export default () => ({
   port: parseInt(process.env.PORT, 10) || 3000,
   frontendOrigin: process.env.FRONTEND_ORIGIN || 'http://localhost:3001',
-  cricapi: {
-    apiKey: process.env.CRICAPI_API_KEY || '',
-    baseUrl: 'https://api.cricapi.com/v1',
+  rapidapi: {
+    key: process.env.RAPIDAPI_KEY || '',
+    host: process.env.RAPIDAPI_HOST || 'cricbuzz-cricket.p.rapidapi.com',
+    baseUrl: process.env.RAPIDAPI_BASE_URL || 'https://cricbuzz-cricket.p.rapidapi.com',
+    matchesPath: process.env.RAPIDAPI_MATCHES_PATH || '/matches/v1/live',
   },
   redis: {
     host: process.env.REDIS_HOST || 'localhost',
