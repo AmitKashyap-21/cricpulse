@@ -1,4 +1,4 @@
-import { Global, Module } from '@nestjs/common';
+import { Global, Logger, Module } from '@nestjs/common';
 import { ConfigModule, ConfigService } from '@nestjs/config';
 import { RedisService } from './redis.service';
 
@@ -9,6 +9,7 @@ import { RedisService } from './redis.service';
     {
       provide: 'REDIS_CLIENT',
       useFactory: async (configService: ConfigService) => {
+        const logger = new Logger('RedisModule');
         const Redis = (await import('ioredis')).default;
         const client = new Redis({
           host: configService.get<string>('redis.host'),
@@ -22,7 +23,7 @@ import { RedisService } from './redis.service';
         try {
           await client.connect();
         } catch (e) {
-          // Redis not available — will work in degraded mode
+          logger.warn(`Redis unavailable (${e.message}) — running in degraded mode`);
         }
         return client;
       },
