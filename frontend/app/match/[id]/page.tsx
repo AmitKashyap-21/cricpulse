@@ -1,6 +1,6 @@
 'use client';
 
-import { useEffect, useState, useRef } from 'react';
+import { useEffect, useState, useRef, useCallback } from 'react';
 import { useParams } from 'next/navigation';
 import { getMatch } from '../../../services/api';
 import { connectSocket, disconnectSocket } from '../../../services/socket';
@@ -35,7 +35,7 @@ export default function MatchPage() {
   const [wsConnected, setWsConnected] = useState(false);
   const pollingRef = useRef<NodeJS.Timeout | null>(null);
 
-  const fetchMatch = async () => {
+  const fetchMatch = useCallback(async () => {
     try {
       const data = await getMatch(matchId);
       setMatch(data);
@@ -43,7 +43,7 @@ export default function MatchPage() {
     } catch (e: any) {
       setError(e.message || 'Failed to load match');
     }
-  };
+  }, [matchId]);
 
   useEffect(() => {
     if (!matchId) return;
@@ -83,7 +83,7 @@ export default function MatchPage() {
         clearInterval(pollingRef.current);
       }
     };
-  }, [matchId]);
+  }, [matchId, fetchMatch]);
 
   if (loading) {
     return (

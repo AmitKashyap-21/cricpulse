@@ -33,7 +33,14 @@ export class SchedulerService {
 
         const cacheKey = `match:${match.id}:snapshot`;
         const previousRaw = await this.redisService.get(cacheKey);
-        const previous: MatchSnapshot | null = previousRaw ? JSON.parse(previousRaw) : null;
+        let previous: MatchSnapshot | null = null;
+        if (previousRaw) {
+          try {
+            previous = JSON.parse(previousRaw);
+          } catch {
+            this.logger.warn(`Corrupted cache for ${cacheKey} — treating as no prior snapshot`);
+          }
+        }
 
         const snapshot = await this.aggregatorService.fetchMatchSnapshot(match.id);
 

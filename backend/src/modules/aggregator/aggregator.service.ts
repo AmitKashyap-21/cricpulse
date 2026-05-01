@@ -81,8 +81,12 @@ export class AggregatorService {
       // Return stale cache if available
       const stale = await this.redisService.get(cacheKey);
       if (stale) {
-        const parsed = JSON.parse(stale) as MatchSnapshot;
-        return { ...parsed, stale: true };
+        try {
+          const parsed = JSON.parse(stale) as MatchSnapshot;
+          return { ...parsed, stale: true };
+        } catch {
+          this.logger.warn(`Corrupted cached snapshot for ${matchId} — returning stub`);
+        }
       }
       return this.stubSnapshot(matchId, true, 'rate_limit');
     }
@@ -112,8 +116,12 @@ export class AggregatorService {
       // Return stale cache
       const stale = await this.redisService.get(cacheKey);
       if (stale) {
-        const parsed = JSON.parse(stale) as MatchSnapshot;
-        return { ...parsed, stale: true };
+        try {
+          const parsed = JSON.parse(stale) as MatchSnapshot;
+          return { ...parsed, stale: true };
+        } catch {
+          this.logger.warn(`Corrupted cached snapshot for ${matchId} — returning stub`);
+        }
       }
 
       return this.stubSnapshot(matchId, true, e.message);

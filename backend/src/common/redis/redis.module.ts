@@ -23,7 +23,10 @@ import { RedisService } from './redis.service';
         try {
           await client.connect();
         } catch (e) {
-          logger.warn(`Redis unavailable (${e.message}) — running in degraded mode`);
+          logger.warn(
+            `Redis unavailable (${e.message}) — running in degraded mode. ` +
+            `Caching, rate limiting, and real-time features will not function correctly.`,
+          );
         }
         return client;
       },
