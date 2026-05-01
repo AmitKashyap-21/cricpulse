@@ -44,13 +44,22 @@ export default function ScoreBoard({ match }: Props) {
             {info?.img && (
               <img
                 src={info.img}
-                alt={name}
+                alt={`${name} team flag`}
                 className="w-10 h-10 rounded-full object-cover border border-gray-600"
                 onError={(e) => {
-                  (e.target as HTMLImageElement).style.display = 'none';
+                  const img = e.target as HTMLImageElement;
+                  img.style.display = 'none';
+                  const placeholder = img.nextElementSibling as HTMLElement | null;
+                  if (placeholder) placeholder.style.display = 'flex';
                 }}
               />
             )}
+            <span
+              aria-hidden="true"
+              className="w-10 h-10 rounded-full bg-gray-700 border border-gray-600 items-center justify-center text-gray-400 text-sm font-bold hidden"
+            >
+              {(info?.shortname || name).charAt(0).toUpperCase()}
+            </span>
             <div>
               <p className="font-semibold text-white">{name}</p>
               {info?.shortname && (

@@ -2,6 +2,10 @@ import { Global, Logger, Module } from '@nestjs/common';
 import { ConfigModule, ConfigService } from '@nestjs/config';
 import { RedisService } from './redis.service';
 
+const MAX_RETRY_ATTEMPTS = 3;
+const RETRY_BASE_DELAY_MS = 200;
+const MAX_RETRY_DELAY_MS = 2000;
+
 @Global()
 @Module({
   imports: [ConfigModule],
@@ -16,8 +20,8 @@ import { RedisService } from './redis.service';
           port: configService.get<number>('redis.port'),
           lazyConnect: true,
           retryStrategy: (times) => {
-            if (times > 3) return null;
-            return Math.min(times * 200, 2000);
+            if (times > MAX_RETRY_ATTEMPTS) return null;
+            return Math.min(times * RETRY_BASE_DELAY_MS, MAX_RETRY_DELAY_MS);
           },
         });
         try {
