@@ -1,0 +1,1 @@
+{\n  "name": "backend",\n  "version": "1.0.0",\n  "dependencies": {\n    "@nestjs/core": "^8.0.0",\n    "@nestjs/common": "^8.0.0",\n    "@nestjs/platform-express": "^8.0.0",\n    "rxjs": "^7.0.0",\n    "reflect-metadata": "^0.1.13"\n  },\n  "devDependencies": {\n    "@types/node": "^16.0.0",\n    "typescript": "^4.3.5"\n  }\n}
