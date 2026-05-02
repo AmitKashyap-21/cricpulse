@@ -1,34 +1,41 @@
 import { Injectable, Logger } from '@nestjs/common';
-import { RedisService } from '../../common/redis/redis.service';
 import { AggregatorService } from '../aggregator/aggregator.service';
-import { MatchSnapshot } from './match.types';
-import { ConfigService } from '@nestjs/config';
+import {
+  MatchListItem,
+  MatchDetail,
+  InningsScore,
+  CommentaryEntry,
+  OverEntry,
+} from './match.types';
 
 @Injectable()
 export class MatchService {
   private readonly logger = new Logger(MatchService.name);
 
-  constructor(
-    private readonly aggregatorService: AggregatorService,
-    private readonly redisService: RedisService,
-    private readonly configService: ConfigService,
-  ) {}
+  constructor(private readonly aggregatorService: AggregatorService) {}
 
-  async getMatches(): Promise<MatchSnapshot[]> {
-    const cacheKey = 'sport:cricket:matches';
-    const cached = await this.redisService.get(cacheKey);
-    if (cached) {
-      return JSON.parse(cached);
+  async getMatches(): Promise<MatchListItem[]> {
+    try {
+      return await this.aggregatorService.fetchMatchList();
+    } catch (e: any) {
+      this.logger.error(`getMatches error: ${e.message}`);
+      return [];
     }
-    return this.aggregatorService.fetchMatchList();
   }
 
-  async getMatch(matchId: string): Promise<MatchSnapshot> {
-    const cacheKey = `match:${matchId}:snapshot`;
-    const cached = await this.redisService.get(cacheKey);
-    if (cached) {
-      return JSON.parse(cached);
-    }
-    return this.aggregatorService.fetchMatchSnapshot(matchId);
+  async getMatchDetails(matchId: string): Promise<MatchDetail> {
+    return this.aggregatorService.getMatchDetails(matchId);
+  }
+
+  async getScorecard(matchId: string): Promise<{ innings: InningsScore[] }> {
+    return this.aggregatorService.getScorecard(matchId);
+  }
+
+  async getCommentary(matchId: string): Promise<CommentaryEntry[]> {
+    return this.aggregatorService.getCommentary(matchId);
+  }
+
+  async getOvers(matchId: string): Promise<OverEntry[]> {
+    return this.aggregatorService.getOvers(matchId);
   }
 }

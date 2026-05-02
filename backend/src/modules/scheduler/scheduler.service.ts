@@ -3,7 +3,7 @@ import { ConfigService } from '@nestjs/config';
 import { AggregatorService } from '../aggregator/aggregator.service';
 import { RedisService } from '../../common/redis/redis.service';
 import { MatchGateway } from '../../websocket/websocket.gateway';
-import { MatchSnapshot } from '../match/match.types';
+import { MatchDetail } from '../match/match.types';
 
 const DEFAULT_POLL_INTERVAL_MS = 8000;
 const DEFAULT_MAX_MATCHES = 20;
@@ -50,9 +50,9 @@ export class SchedulerService implements OnModuleInit, OnModuleDestroy {
       for (const match of liveMatches) {
         if (!match.id) continue;
 
-        const cacheKey = `match:${match.id}:snapshot`;
+        const cacheKey = `match:${match.id}:details`;
         const previousRaw = await this.redisService.get(cacheKey);
-        let previous: MatchSnapshot | null = null;
+        let previous: MatchDetail | null = null;
         if (previousRaw) {
           try {
             previous = JSON.parse(previousRaw);
@@ -62,17 +62,16 @@ export class SchedulerService implements OnModuleInit, OnModuleDestroy {
           }
         }
 
-        const snapshot = await this.aggregatorService.fetchMatchSnapshot(match.id);
+        const detail = await this.aggregatorService.getMatchDetails(match.id);
 
-        // Detect change by comparing score array
         const hasChanged =
           !previous ||
-          JSON.stringify(previous.score) !== JSON.stringify(snapshot.score) ||
-          previous.status !== snapshot.status;
+          JSON.stringify(previous.score) !== JSON.stringify(detail.score) ||
+          previous.status !== detail.status;
 
         if (hasChanged) {
           this.logger.log(`Match ${match.id} updated — broadcasting`);
-          this.matchGateway.broadcastMatchUpdate(snapshot);
+          this.matchGateway.broadcastMatchUpdate(detail);
         }
       }
     } catch (e: unknown) {
