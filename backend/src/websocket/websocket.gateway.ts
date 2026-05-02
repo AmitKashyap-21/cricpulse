@@ -9,7 +9,7 @@ import {
 } from '@nestjs/websockets';
 import { Logger } from '@nestjs/common';
 import { Server, Socket } from 'socket.io';
-import { MatchSnapshot } from '../modules/match/match.types';
+import { MatchDetail } from '../modules/match/match.types';
 
 @WebSocketGateway({ path: '/ws', cors: { origin: '*' } })
 export class MatchGateway implements OnGatewayConnection, OnGatewayDisconnect {
@@ -48,7 +48,7 @@ export class MatchGateway implements OnGatewayConnection, OnGatewayDisconnect {
     return { event: 'unsubscribed', data: { matchId: data.matchId } };
   }
 
-  broadcastMatchUpdate(snapshot: MatchSnapshot) {
+  broadcastMatchUpdate(snapshot: MatchDetail) {
     const room = `match:${snapshot.id}`;
     this.server?.to(room).emit('match_update', snapshot);
   }
